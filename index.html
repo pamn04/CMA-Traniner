@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMA Quantum | Adaptive Engine</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
+
+    <header class="glass-panel sticky top-0 z-50 px-5 py-3 flex justify-between items-center border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl animate-pulse-slow">🧠</span>
+            <div>
+                <h1 class="text-sm font-extrabold tracking-widest uppercase text-white">Quantum Engine</h1>
+                <p class="text-[10px] text-indigo-400 font-bold">Adaptive CMA Part 1</p>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <div class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-inner">
+                <span>🔥</span> <span id="streak-counter" class="text-xs font-bold text-amber-400">0 Days</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 md:p-6 max-w-6xl w-full mx-auto relative">
+        
+        <section id="view-dashboard" class="space-y-6 fade-in">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="stat-card border-t-4 border-indigo-500">
+                    <p class="stat-title">Total Evaluated</p>
+                    <p id="stat-total" class="stat-value text-indigo-400">0</p>
+                </div>
+                <div class="stat-card border-t-4 border-emerald-500">
+                    <p class="stat-title">Global Accuracy</p>
+                    <p id="stat-accuracy" class="stat-value text-emerald-400">0%</p>
+                </div>
+                <div class="stat-card border-t-4 border-amber-500">
+                    <p class="stat-title">Avg Time/MCQ</p>
+                    <p id="stat-time" class="stat-value text-amber-400">0s</p>
+                </div>
+                <div class="stat-card border-t-4 border-cyan-500 flex flex-col justify-center">
+                    <button onclick="App.launchAdaptiveSession()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg shadow-[0_0_15px_rgba(8,145,178,0.4)] transition-all transform hover:scale-105 text-sm">
+                        ⚡ Smart Sprint
+                    </button>
+                    <p class="text-[9px] text-slate-400 text-center mt-2 leading-tight">AI targets your weakest domain</p>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Domain Mastery Matrix</h2>
+                <div id="domain-matrix" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    </div>
+            </div>
+            
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex gap-3 items-center justify-between">
+                <select id="manual-domain" class="bg-slate-900 border border-slate-600 text-sm rounded-lg px-3 py-2 text-white w-full outline-none focus:border-indigo-500">
+                    </select>
+                <button onclick="App.launchManualSession()" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 whitespace-nowrap">
+                    Launch Custom
+                </button>
+            </div>
+        </section>
+
+        <section id="view-quiz" class="hidden fade-in grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex justify-between items-center bg-slate-800 border border-slate-700 p-3 rounded-xl">
+                    <div>
+                        <span id="quiz-domain" class="text-[10px] uppercase tracking-wider text-indigo-400 font-bold bg-indigo-900/40 px-2 py-1 rounded">Domain</span>
+                        <div id="quiz-progress" class="text-xs text-slate-300 mt-1 font-medium">Q 1 / 20</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[9px] text-slate-500 uppercase font-bold block">Auto-Pause Timer</span>
+                        <span id="quiz-timer" class="text-sm font-mono font-bold text-white tracking-widest">00:00</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl space-y-5 shadow-xl">
+                    <p id="quiz-question" class="text-sm md:text-base text-slate-100 font-medium leading-relaxed"></p>
+                    <div id="quiz-options" class="space-y-2">
+                        </div>
+                    
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-sm border shadow-inner">
+                        <p id="feedback-text" class="text-slate-200 text-xs leading-relaxed max-h-40 overflow-y-auto custom-scrollbar"></p>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="App.toggleGemini()" class="bg-slate-900 border border-slate-700 hover:border-cyan-500 text-cyan-400 text-xs font-bold px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                            🤖 Ask Gemini
+                        </button>
+                        <button id="btn-next" onclick="App.handleNext()" class="bg-white text-slate-900 font-extrabold text-xs px-6 py-2 rounded-lg hover:bg-slate-200 transition-all shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                            Verify
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hidden lg:block bg-slate-800/50 border border-slate-700 border-dashed rounded-2xl p-4 text-center flex flex-col justify-center items-center">
+                <span class="text-3xl mb-2">📝</span>
+                <p class="text-xs text-slate-400 font-medium">Float Samsung Notes app over this exact zone for scratchpad calculations.</p>
+            </div>
+        </section>
+
+        <section id="view-summary" class="hidden fade-in max-w-md mx-auto mt-10 bg-slate-800 border border-slate-700 p-6 rounded-2xl text-center space-y-6 shadow-2xl">
+            <h2 class="text-2xl font-black text-white">Sprint Complete! 🏁</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                    <p class="text-[10px] uppercase text-slate-400 font-bold">Accuracy</p>
+                    <p id="sum-acc" class="text-2xl font-black text-emerald-400">0%</p>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                    <p class="text-[10px] uppercase text-slate-400 font-bold">Time</p>
+                    <p id="sum-time" class="text-2xl font-black text-amber-400">00:00</p>
+                </div>
+            </div>
+            <button onclick="App.endSession()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg">
+                Update Database & Return
+            </button>
+        </section>
+
+    </main>
+
+    <div id="gemini-overlay" class="fixed inset-y-0 right-0 w-full md:w-96 bg-slate-900 border-l border-slate-700 transform translate-x-full transition-transform duration-300 z-50 flex flex-col shadow-2xl">
+        <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+            <h3 class="font-bold text-cyan-400 flex items-center gap-2">🤖 Prompt Generator</h3>
+            <button onclick="App.toggleGemini()" class="text-slate-400 text-xl font-bold hover:text-white">×</button>
+        </div>
+        <div class="p-4 flex flex-col gap-4 flex-grow">
+            <p class="text-[10px] text-slate-400">Copy this exact prompt and paste it into our Gemini chat. It is structured perfectly to explain the logic of this specific question.</p>
+            <textarea id="gemini-prompt" class="w-full flex-grow bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-slate-300 font-mono resize-none focus:outline-none custom-scrollbar" readonly></textarea>
+            <button onclick="App.copyPrompt()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl text-sm shadow-[0_0_15px_rgba(8,145,178,0.3)] transition-all">
+                📋 Copy Prompt & Open Gemini
+            </button>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+

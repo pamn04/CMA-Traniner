@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0f172a">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
@@ -103,7 +103,7 @@
                     <div class="w-full bg-slate-900 rounded-full h-2"><div id="goal-bar-acc" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 0%"></div></div>
                 </div>
                 <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p class="text-xs font-bold text-slate-400 mb-1">Target Velocity: < 90s / Question</p>
+                    <p class="text-xs font-bold text-slate-400 mb-1">Target Velocity: &lt; 90s / Question</p>
                     <p id="goal-current-time" class="text-sm font-black text-amber-400">Current Avg: 0s</p>
                 </div>
                 <div class="bg-indigo-950/30 border border-indigo-900/50 p-4 rounded-xl">
@@ -135,8 +135,8 @@
                 <label class="text-xs font-bold text-indigo-400">Cross-Device Sync System</label>
                 <p class="text-[10px] text-slate-400 leading-tight">Move your progress between Tablet and Phone by copying the Sync Code below.</p>
                 <div class="flex gap-2">
-                    <button onclick="App.exportSyncCode()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-xs font-bold py-2 rounded-xl transition">📤 Export Code</button>
-                    <button onclick="App.importSyncCode()" class="w-1/2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold py-2 rounded-xl transition">📥 Import Code</button>
+                    <button onclick="App.exportSyncCode()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-xs font-bold py-2 rounded-xl transition">📤 Export</button>
+                    <button onclick="App.importSyncCode()" class="w-1/2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold py-2 rounded-xl transition">📥 Import</button>
                 </div>
             </div>
 
@@ -148,7 +148,7 @@
         </div>
     </div>
 
-    <script src="questions.js"></script>
-    <script src="app.js"></script>
+    <script src="questions.js?v=4"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>

@@ -3,37 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMA Quantum | Adaptive Engine</title>
-    
+    <title>CMA Quantum Engine V3</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
 
-    <header class="glass-panel sticky top-0 z-50 px-5 py-3 flex justify-between items-center border-b border-slate-800">
+    <header class="glass-panel sticky top-0 z-40 px-5 py-3 flex justify-between items-center border-b border-slate-800">
         <div class="flex items-center gap-3">
             <span class="text-2xl animate-pulse-slow">🧠</span>
-            <div>
-                <h1 class="text-sm font-extrabold tracking-widest uppercase text-white">Quantum Engine</h1>
-                <p class="text-[10px] text-indigo-400 font-bold">Adaptive CMA Part 1</p>
-            </div>
+            <div><h1 class="text-sm font-extrabold tracking-widest uppercase text-white">Quantum Engine</h1></div>
         </div>
-        <div class="flex gap-3">
-            <div class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-inner">
-                <span>🔥</span> <span id="streak-counter" class="text-xs font-bold text-amber-400">0 Days</span>
-            </div>
+        <div class="flex gap-2 items-center">
+            <button id="btn-install" class="hidden bg-indigo-600 hover:bg-indigo-500 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg">📲 Install App</button>
+            <div class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold text-amber-400 border border-slate-700">🔥 <span id="streak-counter">0</span></div>
+            <button onclick="App.openSettings()" class="bg-slate-800 hover:bg-slate-700 p-1.5 rounded-lg text-lg border border-slate-700 transition">⚙️</button>
         </div>
     </header>
 
-    <main class="flex-grow p-4 md:p-6 max-w-6xl w-full mx-auto relative">
+    <main class="flex-grow p-4 md:p-6 max-w-7xl w-full mx-auto relative">
         
         <section id="view-dashboard" class="space-y-6 fade-in">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="stat-card border-t-4 border-indigo-500">
+                    <p class="stat-title">Evaluated</p><p id="stat-total" class="stat-value text-indigo-400">0</p>
+                </div>
+                <div class="stat-card border-t-4 border-emerald-500">
+                    <p class="stat-title">Accuracy</p><p id="stat-accuracy" class="stat-value text-emerald-400">0%</p>
+                </div>
+                <div class="stat-card border-t-4 border-amber-500">
+                    <p class="stat-title">Velocity</p><p id="stat-time" class="stat-value text-amber-400">0s/Q</p>
+                </div>
+                <div class="stat-card border-t-4 border-cyan-500 flex flex-col justify-center">
+                    <button onclick="App.launchAdaptiveSession()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-lg text-sm transition shadow-[0_0_15px_rgba(8,145,178,0.3)]">⚡ Smart Sprint</button>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Domain Matrix (Tap for Objectives)</h2>
+                <div id="domain-matrix" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+            
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex gap-3">
+                <select id="manual-domain" class="bg-slate-900 border border-slate-600 text-sm rounded-lg px-3 py-2 text-white w-full outline-none"></select>
+                <button onclick="App.launchManualSession()" class="bg-indigo-600 hover:bg-indigo-500 px-5 rounded-lg text-sm font-bold shadow-lg shadow-indigo-600/20">Launch</button>
+            </div>
+        </section>
+
+        <section id="view-quiz" class="hidden fade-in grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2 space-y-4">
+                <div class="flex justify-between bg-slate-800 p-3 rounded-xl border border-slate-700">
+                    <div><span id="quiz-domain" class="text-[10px] uppercase text-indigo-400 font-bold bg-indigo-900/40 px-2 py-1 rounded">Domain</span></div>
+                    <span id="quiz-timer" class="text-sm font-mono font-bold">00:00</span>
+                </div>
+                
+                <div class="bg-slate-800 p-5 md:p-6 rounded-2xl border border-slate-700 space-y-5 shadow-xl">
+                    <p id="quiz-question" class="text-sm md:text-base font-medium leading-relaxed"></p>
+                    <div id="quiz-options" class="space-y-2"></div>
+                    
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-sm border shadow-inner">
+                        <p id="feedback-text" class="text-slate-200 text-xs md:text-sm leading-relaxed max-h-64 overflow-y-auto custom-scrollbar"></p>
+                    </div>
+                    
+                    <div class="flex justify-between pt-2">
+                        <button id="btn-gemini" onclick="App.triggerGemini()" class="bg-cyan-950 hover:bg-cyan-900 text-cyan-400 text-xs font-bold px-4 py-2.5 rounded-xl border border-cyan-800 transition shadow-[0_0_10px_rgba(8,145,178,0.1)]">🤖 Ask Gemini</button>
+                        <button id="btn-next" onclick="App.handleNext()" class="bg-slate-200 text-slate-900 font-extrabold text-xs px-6 py-2.5 rounded-xl transition shadow-lg">Verify Logic</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden xl:flex flex-col bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden h-[600px] shadow-xl">
+                <div class="bg-slate-900 p-3 text-xs font-bold text-slate-400 border-b border-slate-700 text-center flex justify-between px-4">
+                    <span>📝 Scratchpad Console</span>
+                    <button onclick="document.getElementById('scratch-area').value=''" class="text-rose-400 hover:text-rose-300 transition">Clear</button>
+                </div>
+                <textarea id="scratch-area" class="flex-grow bg-slate-800 text-slate-300 p-5 font-mono text-sm resize-none focus:outline-none custom-scrollbar leading-relaxed" placeholder="// Use this space to map out variances, budgets, and operational formulas..."></textarea>
+            </div>
+        </section>
+
+        <section id="view-summary" class="hidden fade-in max-w-md mx-auto mt-10 bg-slate-800 border border-slate-700 p-6 rounded-3xl text-center space-y-6 shadow-2xl">
+            <h2 class="text-2xl font-black text-white">Sprint Evaluated 🏁</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700"><p class="text-[10px] uppercase text-slate-500 font-bold">Accuracy</p><p id="sum-acc" class="text-3xl font-black text-emerald-400">0%</p></div>
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700"><p class="text-[10px] uppercase text-slate-500 font-bold">Total Time</p><p id="sum-time" class="text-3xl font-black text-amber-400">00:00</p></div>
+            </div>
+            <button onclick="App.endSession()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/20">Write to Database & Return</button>
+        </section>
+    </main>
+
+    <div id="modal-goal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 space-y-5">
+            <h3 id="goal-title" class="text-lg font-black text-white">Domain Objectives</h3>
+            <div class="space-y-3">
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div class="flex justify-between text-xs font-bold mb-2"><span class="text-slate-400">Target: 75%</span><span id="goal-current-acc" class="text-emerald-400">Current: 0%</span></div>
+                    <div class="w-full bg-slate-900 rounded-full h-2"><div id="goal-bar-acc" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 0%"></div></div>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <p class="text-xs font-bold text-slate-400 mb-1">Target Velocity: < 90s / Question</p>
+                    <p id="goal-current-time" class="text-sm font-black text-amber-400">Current Avg: 0s</p>
+                </div>
+                <div class="bg-indigo-950/30 border border-indigo-900/50 p-4 rounded-xl">
+                    <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Tactical Protocol</p>
+                    <p id="goal-advice" class="text-xs text-slate-300 mt-1.5 leading-relaxed"></p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('modal-goal').classList.add('hidden')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold py-2.5 rounded-xl text-sm transition">Close HUD</button>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl">
+            <h3 class="text-lg font-black text-white flex items-center gap-2">⚙️ System Configuration</h3>
+            
+            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-3">
+                <label class="text-xs font-bold text-cyan-400 flex justify-between">
+                    <span>Gemini API Node (Optional)</span>
+                    <span id="api-status" class="text-[9px] text-slate-500">Unlinked</span>
+                </label>
+                <p class="text-[10px] text-slate-400 leading-tight">Paste your free Google AI Studio key to unlock direct in-app explanations. This key is locally encrypted on your device and never touches an external server.</p>
+                <div class="flex gap-2">
+                    <input type="password" id="api-key-input" class="w-full bg-slate-900 text-slate-200 p-2.5 rounded-xl text-xs outline-none focus:border-cyan-500 border border-slate-700" placeholder="AI Studio Key...">
+                    <button onclick="App.saveApiKey()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-4 rounded-xl transition shadow-lg">Save</button>
+                </div>
+                <p id="api-save-msg" class="text-[10px] text-emerald-400 hidden animate-pulse font-bold">Node linked and secured.</p>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="App.factoryReset()" class="w-full bg-rose-950/50 hover:bg-rose-900 border border-rose-900 text-rose-400 font-bold py-3 rounded-xl text-xs transition">🚨 Flush Database Analytics</button>
+            </div>
+            
+            <button onclick="document.getElementById('modal-settings').classList.add('hidden')" class="w-full bg-slate-800 hover:bg-slate-700 font-bold py-3 rounded-xl text-sm border border-slate-700 transition">Return to Dashboard</button>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="stat-card border-t-4 border-indigo-500">
                     <p class="stat-title">Total Evaluated</p>
